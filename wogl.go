@@ -1,13 +1,15 @@
 package wogl
 
 import (
+	"fmt"
 	"runtime"
+
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/glfw/v3.0/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 type WoglData struct {
-	Window glfw.Window
+	Window   *glfw.Window
 	Elements []Element
 }
 
@@ -32,10 +34,11 @@ func (data *WoglData) InitGlfw() (error, func()) {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	data.Window, err := glfw.CreateWindow(1600, 1600, "go_fractals", nil, nil)
+	window, err := glfw.CreateWindow(1600, 1600, "go_fractals", nil, nil)
 	if err != nil {
 		panic(err)
 	}
+	data.Window = window
 
 	data.Window.MakeContextCurrent()
 
@@ -46,7 +49,7 @@ func (data *WoglData) InitGlfw() (error, func()) {
 }
 
 func (data *WoglData) InitGl() {
-	err = gl.Init()
+	err := gl.Init()
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +58,7 @@ func (data *WoglData) InitGl() {
 }
 
 func (data *WoglData) AddElement(element *Element) {
-	data.Elements = append(data.Elements, element)
+	data.Elements = append(data.Elements, *element)
 }
 
 func (data *WoglData) Loop() {
@@ -63,12 +66,13 @@ func (data *WoglData) Loop() {
 		gl.ClearColor(0.2, 0.2, 0.2, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		for _, e := range data.Elements {
+		for _, element := range data.Elements {
 			element.Draw()
+			element.Shader.CheckHotloadStatus()
 		}
 
-		window.SwapBuffers()
+		data.Window.SwapBuffers()
 		glfw.PollEvents()
-		shader.CheckHotloadStatus()
+
 	}
 }

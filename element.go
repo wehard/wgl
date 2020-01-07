@@ -100,7 +100,7 @@ func (element *Element) Draw() {
 
 	pos := element.Transform.Position
 	modelMatrix := mgl32.Translate3D(pos[0], pos[1], pos[2]).Mul4(rotateX.Mul3(rotateY).Mul3(rotateZ).Mat4())
-	shader.SetMatrix4x4("model_matrix", modelMatrix)
+	element.Shader.SetMatrix4x4("model_matrix", modelMatrix)
 
 	gl.BindVertexArray(element.vaoID)
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, element.eboID)
