@@ -1,4 +1,4 @@
-package wogl
+package wgl
 
 import (
 	"github.com/go-gl/mathgl/mgl32"

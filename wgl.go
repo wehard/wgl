@@ -1,4 +1,4 @@
-package wogl
+package wgl
 
 import (
 	"fmt"
@@ -8,18 +8,22 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-type WoglData struct {
-	Window   *glfw.Window
-	Elements []Element
+var Window *glfw.Window
+var Elements []Element
+
+func Init(width, height int, title string) func() {
+	err, cleanupFunc := initGlfw(width, height, title)
+	if err != nil {
+		panic(err)
+	}
+	err = initGl()
+	if err != nil {
+		panic(err)
+	}
+	return cleanupFunc
 }
 
-func NewWogl() *WoglData {
-	var data WoglData
-
-	return &data
-}
-
-func (data *WoglData) InitGlfw() (error, func()) {
+func initGlfw(width, height int, title string) (error, func()) {
 
 	runtime.LockOSThread()
 
@@ -34,13 +38,14 @@ func (data *WoglData) InitGlfw() (error, func()) {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	window, err := glfw.CreateWindow(1600, 1600, "go_fractals", nil, nil)
+	window, err := glfw.CreateWindow(width, height, title, nil, nil)
 	if err != nil {
 		panic(err)
 	}
-	data.Window = window
+	fmt.Println("Created window")
+	Window = window
 
-	data.Window.MakeContextCurrent()
+	Window.MakeContextCurrent()
 
 	cleanup := func() {
 		glfw.Terminate()
@@ -48,30 +53,35 @@ func (data *WoglData) InitGlfw() (error, func()) {
 	return nil, cleanup
 }
 
-func (data *WoglData) InitGl() {
+func initGl() error {
 	err := gl.Init()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
+	return nil
 }
 
-func (data *WoglData) AddElement(element *Element) {
-	data.Elements = append(data.Elements, *element)
+func AddElement(element *Element) {
+	Elements = append(Elements, *element)
 }
 
-func (data *WoglData) Loop() {
-	for !data.Window.ShouldClose() {
+func SetKeyCallback(cbfunc func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey)) {
+	Window.SetKeyCallback(cbfunc)
+}
+
+func Loop() {
+	for !Window.ShouldClose() {
 		gl.ClearColor(0.2, 0.2, 0.2, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		for _, element := range data.Elements {
+		for _, element := range Elements {
 			element.Draw()
 			element.Shader.CheckHotloadStatus()
 		}
 
-		data.Window.SwapBuffers()
+		Window.SwapBuffers()
 		glfw.PollEvents()
 
 	}

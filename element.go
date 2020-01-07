@@ -1,4 +1,4 @@
-package wogl
+package wgl
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -11,6 +11,7 @@ type Vertex struct {
 	u, v       float64
 }
 
+// Element holds GL ids, vertex data, transform and shader
 type Element struct {
 	vaoID     uint32
 	vboID     uint32
@@ -23,6 +24,7 @@ type Element struct {
 	Shader    *ShaderProgram
 }
 
+// NewElement creates a new instance of element, generates it's buffers and returns a pointer to it
 func NewElement(shader *ShaderProgram) *Element {
 	//var element Element
 	//element.vertices = []float32{
@@ -76,7 +78,6 @@ func (element *Element) genBuffers() {
 
 	gl.GenVertexArrays(1, &element.vaoID)
 	gl.BindVertexArray(element.vaoID)
-	//gl.BindBuffer(gl.ARRAY_BUFFER, element.vboID)
 
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 9*4, nil)
 	gl.EnableVertexAttribArray(0)
@@ -90,6 +91,7 @@ func (element *Element) genBuffers() {
 	gl.BindVertexArray(0)
 }
 
+// Draw element using it's shader
 func (element *Element) Draw() {
 
 	element.Shader.Use()

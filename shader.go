@@ -1,4 +1,4 @@
-package wogl
+package wgl
 
 import (
 	"fmt"
