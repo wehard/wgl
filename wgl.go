@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/go-gl/mathgl/mgl32"
+
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 var Window *glfw.Window
 var Elements []Element
+var ClearColor mgl32.Vec4
 
 func Init(width, height int, title string) func() {
 	err, cleanupFunc := initGlfw(width, height, title)
@@ -73,7 +76,7 @@ func SetKeyCallback(cbfunc func(w *glfw.Window, key glfw.Key, scancode int, acti
 
 func Loop() {
 	for !Window.ShouldClose() {
-		gl.ClearColor(0.2, 0.2, 0.2, 1.0)
+		gl.ClearColor(ClearColor[0], ClearColor[1], ClearColor[2], ClearColor[3])
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		for _, element := range Elements {
