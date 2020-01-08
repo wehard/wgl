@@ -40,7 +40,7 @@ func initGlfw(width, height int, title string) (error, func()) {
 	glfw.WindowHint(glfw.Resizable, glfw.False)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-
+	glfw.WindowHint(glfw.CenterCursor, 1)
 	window, err := glfw.CreateWindow(width, height, title, nil, nil)
 	if err != nil {
 		panic(err)
@@ -74,15 +74,17 @@ func SetKeyCallback(cbfunc func(w *glfw.Window, key glfw.Key, scancode int, acti
 	Window.SetKeyCallback(cbfunc)
 }
 
-func Loop() {
+func Loop(onUpdate, onRender func()) {
 	for !Window.ShouldClose() {
 		gl.ClearColor(ClearColor[0], ClearColor[1], ClearColor[2], ClearColor[3])
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
+		onUpdate()
 		for _, element := range Elements {
 			element.Draw()
 			element.Shader.CheckHotloadStatus()
 		}
+		onRender()
 
 		Window.SwapBuffers()
 		glfw.PollEvents()
